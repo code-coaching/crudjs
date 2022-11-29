@@ -13,7 +13,7 @@ Clone this project.
 
 Copy .env.example to .env and change the values.
 
-This project assumes the usage of a MongoDB database, which can be created for free on [MongoDB Atlas](https://www.mongodb.com/atlas/database).
+This project uses MongoDB as a database, this can either be a local database or a cloud based database [MongoDB Atlas](https://www.mongodb.com/atlas/database).
 
 ## Development
 
