@@ -1,12 +1,12 @@
-const Joi = require("@hapi/joi");
+const { z } = require("zod");
 
-const exampleSchema = Joi.object({
-  name: Joi.string().required(),
-  age: Joi.number().required(),
+const exampleSchema = z.object({
+  name: z.string(),
+  age: z.number(),
 });
 
-const sampleSchema = Joi.object({
-  example: Joi.array().items(exampleSchema),
+const sampleSchema = z.object({
+  example: z.array(exampleSchema),
 });
 
 const COLLECTIONS = {

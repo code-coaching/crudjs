@@ -14,7 +14,7 @@ const registerRoutes = () => {
     const collection = useCollection(collectionName);
     router.post(`/${collectionName}`, (req, res) => {
       const item = req.body;
-      const result = VALIDATIONS[collectionName].validate(item);
+      const result = VALIDATIONS[collectionName].parse(item);
       if (result.error) {
         res.json(result.error).status(400).end();
         return;
@@ -60,7 +60,7 @@ const registerRoutes = () => {
     router.put(`/${collectionName}/:id`, (req, res) => {
       const { id } = req.params;
       const item = req.body;
-      const result = VALIDATIONS[collectionName].validate(item);
+      const result = VALIDATIONS[collectionName].parse(item);
       if (result.error) {
         res.json(result.error).status(400).end();
         return;
