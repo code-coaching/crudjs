@@ -11,7 +11,7 @@ Clone this project.
 
 ### .env
 
-Copy .env.example to .env and change the values.
+Copy the contents of the file `.env.example` to a new file called `.env` and change the values.
 
 This project uses MongoDB as a database, this can either be a local database or a cloud based database [MongoDB Atlas](https://www.mongodb.com/atlas/database).
 
