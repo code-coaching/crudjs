@@ -25,16 +25,17 @@ Execute `npm run dev` to start the server.
 
 Let's say you want to create a server with a `users` collection.
 
+Validation is done through [Zod](https://github.com/colinhacks/zod).
+
 ```js
-const Joi = require("@hapi/joi");
+const { z } = require("zod");
 
 /**
  * Step 1: Create a schema describing how the data should look like.
  */
-
-const userSchema = Joi.object({
-  name: Joi.string().required(),
-  age: Joi.number().required(),
+const userSchema = z.object({
+  name: z.string(),
+  age: z.number(),
 });
 
 /**
