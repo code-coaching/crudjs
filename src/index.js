@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { initializeDatabase } = require("./database");
-const { routes } = require("./routes");
+const { initializeDatabase } = require("./server/database");
+const { routes } = require("./server/routes");
 const cors = require("cors");
 const dotenv = require("dotenv");
 

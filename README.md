@@ -1,6 +1,6 @@
-# CRUD JS
+# CrudJS
 
-CRUD JS is a simple library to create a server with CRUD end points.
+CrudJS is a library to create a server with CRUD end points **in two steps**.
 
 This is intented to be used as an easy to use development server, a production server should be created with a more robust solution.
 For 'proof of concept projects' or 'small projects' this could be used in production as well.
@@ -23,9 +23,10 @@ Execute `npm run dev` to start the server.
 
 ## How to use
 
-Let's say you want to create a server with a `users` collection.
-
+The only file that needs to be changes is `src/configuration.js`.
 Validation is done through [Zod](https://github.com/colinhacks/zod).
+
+Let's say you want to create a server with a `users` collection.
 
 ```js
 const { z } = require("zod");
@@ -38,24 +39,21 @@ const userSchema = z.object({
   age: z.number(),
 });
 
-/**
- * Step 2: Add the name to the list of collections.
- */
-
-const COLLECTIONS = {
-  USERS: "users",
-};
+// example of a nested schema
+const nestedSchema = z.object({
+  users: z.array(userSchema),
+});
 
 /*
- * Step 3: Couple the schema with the collection name.
+ * Step 2: Couple the schema with the endpoint.
  */
-const VALIDATIONS = {
-  [COLLECTIONS.EXAMPLE]: exampleSchema,
-  [COLLECTIONS.SAMPLE]: sampleSchema,
+const END_POINTS = {
+  users: userSchema,
+  "nested-end-point": nestedSchema,
 };
 
 module.exports = {
-  VALIDATIONS,
+  END_POINTS,
 };
 ```
 
@@ -69,3 +67,14 @@ That's it! Now you can start the server and use the end points:
 - PUT /users/:id
   - Body: { name: "John Duck", age: 30 }
 - DELETE /users/:id
+  - :id is the `_id` of the MongoDB document.
+
+- GET /nested-end-point
+- GET /nested-end-point/:id
+  - :id is the `_id` of the MongoDB document.
+- POST /nested-end-point
+  - Body: { users: [{ name: "John Duck", age: 30 }] }
+- PUT /nested-end-point/:id
+  - Body: { users: [{ name: "John Duck", age: 30 }] }
+- DELETE /nested-end-point/:id
+  - :id is the `_id` of the MongoDB document.

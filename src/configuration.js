@@ -9,16 +9,11 @@ const sampleSchema = z.object({
   example: z.array(exampleSchema),
 });
 
-const COLLECTIONS = {
-  EXAMPLE: "example",
-  SAMPLE: "sample",
-};
-
-const VALIDATIONS = {
-  [COLLECTIONS.EXAMPLE]: exampleSchema,
-  [COLLECTIONS.SAMPLE]: sampleSchema,
+const END_POINTS = {
+  "example-end-point": exampleSchema,
+  sample: sampleSchema,
 };
 
 module.exports = {
-  VALIDATIONS,
+  END_POINTS,
 };

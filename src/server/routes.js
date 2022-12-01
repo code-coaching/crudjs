@@ -1,22 +1,23 @@
 const express = require("express");
 const { useCollection } = require("./database");
-const { VALIDATIONS } = require("./validation");
+const { END_POINTS } = require("../configuration");
 
 const router = express.Router();
 
 const handleError = (res, error) => {
-  console.error(error);
-  res.status(500).end();
+  res.json(error).status(500).end();
 };
 
 const registerRoutes = () => {
-  Object.keys(VALIDATIONS).forEach((collectionName) => {
+  Object.keys(END_POINTS).forEach((collectionName) => {
     const collection = useCollection(collectionName);
     router.post(`/${collectionName}`, (req, res) => {
       const item = req.body;
-      const result = VALIDATIONS[collectionName].parse(item);
-      if (result.error) {
-        res.json(result.error).status(400).end();
+      let result = {};
+      try {
+        result = END_POINTS[collectionName].parse(item);
+      } catch (error) {
+        handleError(res, error);
         return;
       }
       collection
@@ -60,9 +61,12 @@ const registerRoutes = () => {
     router.put(`/${collectionName}/:id`, (req, res) => {
       const { id } = req.params;
       const item = req.body;
-      const result = VALIDATIONS[collectionName].parse(item);
-      if (result.error) {
-        res.json(result.error).status(400).end();
+
+      let result = {};
+      try {
+        result = END_POINTS[collectionName].parse(item);
+      } catch (error) {
+        handleError(res, error);
         return;
       }
       collection
