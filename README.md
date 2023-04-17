@@ -23,6 +23,8 @@ Execute `npm run dev` to start the server.
 
 ## How to use
 
+### CRUD End points
+
 The only file that needs to be changes is `src/configuration.js`.
 Validation is done through [Zod](https://github.com/colinhacks/zod).
 
@@ -61,20 +63,66 @@ That's it! Now you can start the server and use the end points:
 
 - GET /users
 - GET /users/:id
+
   - :id is the `_id` of the MongoDB document.
+
 - POST /users
+
   - Body: { name: "John Duck", age: 30 }
+
 - PUT /users/:id
+
   - Body: { name: "John Duck", age: 30 }
+
 - DELETE /users/:id
+
   - :id is the `_id` of the MongoDB document.
 
 - GET /nested-end-point
 - GET /nested-end-point/:id
+
   - :id is the `_id` of the MongoDB document.
+
 - POST /nested-end-point
+
   - Body: { users: [{ name: "John Duck", age: 30 }] }
+
 - PUT /nested-end-point/:id
+
   - Body: { users: [{ name: "John Duck", age: 30 }] }
+
 - DELETE /nested-end-point/:id
+
   - :id is the `_id` of the MongoDB document.
+
+### Proxy/Caching
+
+To set up a proxy/caching end point, you need to add the end point to the `PROXY_CACHE` object in `src/configuration.js`.
+In this example we will use the [PokeAPI](https://pokeapi.co/).
+
+```js
+const PROXY_CACHE = {
+  pokeapi: {
+    endpoint: "https://pokeapi.co/api/v2",
+    swapEndpoint: true,
+    /**
+     * Cache duration in milliseconds
+     * milliseconds * seconds * minutes * hours * day
+     * uncomment the one you want to use
+     */
+    cacheDuration: weeks(1), // 1 week
+    // cacheDuration: weeks(1) + days(3) + hours(5), //  1 week, 3 days, 5 hours
+    // cacheDuration: days(1), // 1 day
+    // cacheDuration: hours(1), // 1 hour
+    // cacheDuration: minutes(1), // 1 minute
+  },
+};
+
+module.exports = {
+  PROXY_CACHE,
+};
+```
+
+That's it!
+
+This will create a proxy end point to the PokeAPI, and cache the results for 1 week in the MongoDB database.

@@ -23,6 +23,13 @@ const useCollection = (collectionName) => {
   const updateItem = (id, args) =>
     db().updateOne({ _id: ObjectId(id) }, { $set: { ...args } });
   const deleteItem = (id) => db().deleteOne({ _id: ObjectId(id) });
+  const readItemBy = (key, value) =>
+    db().findOne({
+      [key]: value,
+    });
+  const updateItemBy = (key, value, args) => {
+    db().updateOne({ [key]: value }, { $set: { ...args } });
+  };
 
   return {
     createItem,
@@ -31,6 +38,8 @@ const useCollection = (collectionName) => {
     collectionName,
     deleteItem,
     readItem,
+    readItemBy,
+    updateItemBy,
   };
 };
 
