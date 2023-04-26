@@ -19,6 +19,7 @@ const registerRoutes = () => {
     router.post(`/${collectionName}`, (req, res) => {
       const item = req.body;
       try {
+        END_POINTS[collectionName].parse(item);
       } catch (error) {
         return handleError(res, error);
       }
