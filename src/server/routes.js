@@ -1,6 +1,10 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const { useCollection } = require("./database");
-const { END_POINTS, PROXY_CACHE } = require("../configuration").default;
+const { END_POINTS, PROXY_CACHE } = require("../configuration");
+const GITHUB_KEY = process.env.GITHUB_KEY;
+const GITHUB_SECRET = process.env.GITHUB_SECRET;
+const GITHUB_SESSION = process.env.GITHUB_SESSION;
 
 const router = express.Router();
 
@@ -14,9 +18,7 @@ const registerRoutes = () => {
     const collection = useCollection(collectionName);
     router.post(`/${collectionName}`, (req, res) => {
       const item = req.body;
-      let result = {};
       try {
-        result = END_POINTS[collectionName].parse(item);
       } catch (error) {
         return handleError(res, error);
       }
@@ -28,7 +30,7 @@ const registerRoutes = () => {
         .catch((error) => handleError(res, error));
     });
 
-    router.get(`/${collectionName}`, (req, res) => {
+    router.get(`/${collectionName}`, (_req, res) => {
       collection
         .readItems()
         .then((items) => res.json({ data: items }).status(200).end())
@@ -147,6 +149,97 @@ const registerProxyCacheRoutes = () => {
     });
   });
 };
+
+const createResponse = (data, options = {}) => {
+  const response = new Response(JSON.stringify(data), options);
+  response.headers.set("content-type", "application/json");
+  return response;
+};
+
+router.get("/api/auth/github", (req, res) => {
+  const scopes = "user,user:email";
+
+  const state = JSON.stringify({
+    session: GITHUB_SESSION,
+    redirect: req.query.redirect || "/",
+  })
+
+  let url = "https://github.com/login/oauth/authorize";
+  url = `${url}?client_id=${GITHUB_KEY}`;
+  url = `${url}&state=${state}`;
+  url = `${url}&scopes=${scopes}`;
+  url = `${url}&redirect_uri=${req.protocol}://${req.headers.host}/api/auth/github/callback`;
+
+  res.set("location", url);
+  res.status(302).send();
+});
+
+const tokenURL = "https://github.com/login/oauth/access_token";
+const getAccessToken = async (code) => {
+  const r = await fetch(tokenURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      client_id: GITHUB_KEY,
+      client_secret: GITHUB_SECRET,
+      code,
+    }),
+  }).then((r) => r.json());
+  return r;
+};
+
+router.get("/api/auth/github/callback", async (req, res) => {
+  const splitUrl = req.url.split("?");
+  splitUrl.shift();
+  const url = splitUrl.join("?");
+  const searchParams = new URLSearchParams(url);
+
+  const code = searchParams.get("code");
+  let state = searchParams.get("state");
+  if (state) state = JSON.parse(state)
+
+  if (!code)
+    return createResponse("", { status: 400, statusText: "BAD_REQUEST" });
+  if (code !== GITHUB_KEY && state.session !== GITHUB_SESSION)
+    return createResponse("", { status: 400, statusText: "BAD_REQUEST" });
+
+  const accessToken = await getAccessToken(code);
+
+  const userUrl = "https://api.github.com/user";
+  const githubUser = await fetch(userUrl, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${accessToken.access_token}`,
+    },
+  }).then((r) => r.json());
+
+  const { id, login } = githubUser;
+  const user = {
+    githubId: id.toString(),
+    github: {
+      id: id.toString(),
+      username: login,
+    },
+  };
+
+  const users = useCollection("users");
+  let match = await users.readItemBy("githubId", user.githubId);
+  if (!match) {
+    try {
+      result = END_POINTS.users.parse(user);
+    } catch (error) {
+      return handleError(res, error);
+    }
+    users.createItem(user);
+    match = await users.readItemBy("githubId", user.githubId);
+  }
+  const token = jwt.sign({ ...match }, GITHUB_SECRET, { expiresIn: "7d" });
+
+  res.set("location", `${state.redirect}/#access_token=${token}`);
+  res.status(302).send();
+});
 
 registerRoutes();
 registerProxyCacheRoutes();

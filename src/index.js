@@ -16,5 +16,5 @@ app.use(routes);
 
 initializeDatabase().then(() => {
   app.listen(port);
-  console.log(`Server listening on port ${port}`);
+  console.info(`Server listening on port ${port}`);
 });

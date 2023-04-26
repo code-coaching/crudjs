@@ -1,4 +1,5 @@
-const { hours, days, weeks } = require("./utils/duration");
+const { ObjectId } = require('mongodb');
+const { weeks } = require("./utils/duration");
 const { z } = require("zod");
 
 const exampleSchema = z.object({
@@ -10,9 +11,23 @@ const sampleSchema = z.object({
   example: z.array(exampleSchema),
 });
 
+/* Do not remove if you want GitHub authentication */
+const userSchema = z.object({
+  _id: z.optional(z.instanceof(ObjectId)),
+  github: z.optional(
+    z.object({
+      id: z.string(),
+      username: z.string(),
+    })
+  ),
+});
+
 const END_POINTS = {
   "example-end-point": exampleSchema,
   sample: sampleSchema,
+
+  /* Do not remove if you want GitHub authentication */
+  users: userSchema,
 };
 
 const PROXY_CACHE = {
