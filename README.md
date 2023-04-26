@@ -13,7 +13,13 @@ Clone this project.
 
 Copy the contents of the file `.env.example` to a new file called `.env` and change the values.
 
+#### Database
+
 This project uses MongoDB as a database, this can either be a local database or a cloud based database [MongoDB Atlas](https://www.mongodb.com/atlas/database).
+
+#### GitHub OAuth
+
+This project has GitHub OAuth implemented, this is used to authenticate users. Create a GitHub OAuth app and fill in the values in the `.env` file.
 
 ## Development
 
