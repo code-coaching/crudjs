@@ -242,6 +242,20 @@ router.get("/api/auth/github/callback", async (req, res) => {
   res.status(302).send();
 });
 
+router.post("/api/auth/verify", (req, res) => {
+  const token = req.headers.authorization;
+
+  if (!token) return res.json({ message: "MISSING_TOKEN" }).status(401).end();
+  if (!token.startsWith("Bearer "))
+    return res.json({ message: "MISSING_BEARER" }).status(401).end();
+  
+  const tokenString = token.replace("Bearer ", "");
+  const decoded = jwt.verify(tokenString, GITHUB_SECRET);
+  if (!decoded) return res.json({ message: "INVALID_TOKEN" }).status(401).end();
+
+  return res.json(decoded).status(200).end();
+});
+
 registerRoutes();
 registerProxyCacheRoutes();
 
